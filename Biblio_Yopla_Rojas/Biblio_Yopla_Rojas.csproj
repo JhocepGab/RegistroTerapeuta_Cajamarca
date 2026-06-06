@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cita.cs" />
+    <Compile Include="ColaEspera.cs" />
     <Compile Include="ListasCitas.cs" />
     <Compile Include="Nodo.cs" />
     <Compile Include="Persona.cs" />
