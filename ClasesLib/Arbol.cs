@@ -9,7 +9,7 @@ namespace Clases
 {
     public class Arbol
     {
-        public Nodo raiz_principal = null;
+        private Nodo raiz_principal = null;
 
         public void Insertar(Persona p)
         {
@@ -23,7 +23,7 @@ namespace Clases
                 nuevo.dato = p;
 
                 raiz = nuevo;
-                MessageBox.Show("Persona registrada con exito!");
+                MessageBox.Show("Paciente registrado con exito!");
             }
             else
             {
@@ -39,7 +39,7 @@ namespace Clases
                 }
                 else
                 {
-                    MessageBox.Show("Persona ya esta registrada previamente");
+                    MessageBox.Show("Paciente ya esta registrado previamente");
                 }
             }
         }
@@ -70,17 +70,18 @@ namespace Clases
         {
             if (raiz == null)
             {
-                MessageBox.Show("Persona no encontrada!");
                 return null;
             }
             else
             {
                 if (p < raiz.dato)
                 {
+                    //izq
                     return BuscarRecursivo(raiz.izq, p);
                 }
                 else if (p > raiz.dato)
                 {
+                    //der
                     return BuscarRecursivo(raiz.der, p);
                 }
                 else

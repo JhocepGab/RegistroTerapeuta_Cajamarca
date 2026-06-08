@@ -43,6 +43,7 @@
     <Compile Include="ListaCitas.cs" />
     <Compile Include="PilaAcciones.cs" />
     <Compile Include="ColaEspera.cs" />
+    <Compile Include="ListaTerapeutas.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

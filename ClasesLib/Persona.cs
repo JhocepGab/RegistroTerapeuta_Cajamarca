@@ -10,14 +10,11 @@ namespace Clases
     {
         public int dni;
         public string nombre;
-        public string email;
-        public string password;
-        public string tarjeta;
-        public string plan; // Gratis, Premium, VIP
+        public string telefono;
 
         public override string ToString()
         {
-            return $"{dni}\t|\t{nombre}\t({(string.IsNullOrEmpty(plan) ? "Gratis" : plan)})";
+            return string.Format("{0}  |  {1}  |  Tel: {2}", dni, nombre, telefono);
         }
 
         public static bool operator >(Persona p1, Persona p2)

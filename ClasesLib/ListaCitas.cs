@@ -7,10 +7,15 @@ using System.Windows.Forms;
 
 namespace Clases
 {
+    public class NodoCita
+    {
+        public Cita dato;
+        public NodoCita sig;
+    }
 
     public class ListaCitas
     {
-        public NodoCita primero = null;
+        private NodoCita primero = null;
 
         public void InsertarOrdenado(Cita c)
         {
@@ -33,12 +38,12 @@ namespace Clases
             act.sig = nuevo;
         }
 
-        public bool ExisteConflicto(string anfitriona, DateTime fechaHora)
+        public bool ExisteConflicto(string terapeuta, DateTime fechaHora)
         {
             NodoCita aux = primero;
             while (aux != null)
             {
-                if (aux.dato.anfitriona == anfitriona && aux.dato.fechaHoraInicio == fechaHora)
+                if (aux.dato.terapeuta == terapeuta && aux.dato.fechaHoraInicio == fechaHora)
                 {
                     return true;
                 }

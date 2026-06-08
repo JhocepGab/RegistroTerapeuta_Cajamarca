@@ -8,8 +8,14 @@ namespace Clases
 {
     public class ColaEspera
     {
-        public NodoCola frente = null;
-        public NodoCola fin = null;
+        private class NodoCola
+        {
+            public Cita dato;
+            public NodoCola sig;
+        }
+
+        private NodoCola frente = null;
+        private NodoCola fin = null;
 
         public bool EstaVacia()
         {

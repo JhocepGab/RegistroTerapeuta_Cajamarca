@@ -12,91 +12,147 @@ namespace GUI
 {
     public partial class Form1 : Form
     {
+        // Estructuras de datos
         Arbol arbol = new Arbol();
-        ListaCitas lista = new ListaCitas();
+        ListaTerapeutas listaTerapeutas = new ListaTerapeutas();
+        ListaCitas listaCitas = new ListaCitas();
         PilaAcciones pila = new PilaAcciones();
         ColaEspera cola = new ColaEspera();
-        Persona usuarioActual = null;
 
         public Form1()
         {
             InitializeComponent();
-            cmbPlan.SelectedIndex = 0;
             rb30.Checked = true;
+            ActualizarPrecio();
+
+            // Cargar las 5 terapeutas predeterminadas en controles
+            listaTerapeutas.LlenarListBox(lbTerapeutas);
+            listaTerapeutas.LlenarComboBox(cmbTerapeuta);
+        }
+
+        // ── Precio dinámico ─────────────────────────────────────────────────
+        private void ActualizarPrecio()
+        {
+            lblPrecio.Text = "Precio: S/. " + (rb30.Checked ? "60" : "150");
+        }
+
+        private void RbDuracion_CheckedChanged(object sender, EventArgs e)
+        {
             ActualizarPrecio();
         }
 
-        private void ActualizarPrecio()
-        {
-            lblPrecio.Text = "Precio: S/. " + (rb30.Checked ? "30" : "60");
-        }
-
-        private Persona ConstruirPersona()
+        // ── PANEL PACIENTES (ABB) ────────────────────────────────────────────
+        private void BtnRegistrarPaciente_Click(object sender, EventArgs e)
         {
             int dni;
             if (!int.TryParse(txtDNI.Text, out dni))
             {
-                MessageBox.Show("DNI inválido");
-                return null;
+                MessageBox.Show("DNI invalido. Ingrese solo numeros.");
+                return;
             }
             if (string.IsNullOrWhiteSpace(txtNombre.Text) ||
-                string.IsNullOrWhiteSpace(txtEmail.Text) ||
-                string.IsNullOrWhiteSpace(txtPassword.Text))
+                string.IsNullOrWhiteSpace(txtTelefono.Text))
             {
-                MessageBox.Show("Complete los datos");
-                return null;
-            }
-
-            string plan = "Gratis";
-            if (cmbPlan.SelectedIndex == 1) plan = "Premium";
-            else if (cmbPlan.SelectedIndex == 2) plan = "VIP";
-
-            if (plan != "Gratis" && string.IsNullOrWhiteSpace(txtTarjeta.Text))
-            {
-                MessageBox.Show("Ingrese tarjeta para plan de pago");
-                return null;
+                MessageBox.Show("Complete todos los campos.");
+                return;
             }
 
             Persona p = new Persona();
             p.dni = dni;
             p.nombre = txtNombre.Text;
-            p.email = txtEmail.Text;
-            p.password = txtPassword.Text;
-            p.tarjeta = txtTarjeta.Text;
-            p.plan = plan;
-
-            return p;
-        }
-
-        private void BtnRegistrar_Click(object sender, EventArgs e)
-        {
-            Persona p = ConstruirPersona();
-            if (p == null) return;
+            p.telefono = txtTelefono.Text;
 
             arbol.Insertar(p);
-            arbol.Listar(ref lbUsuarios);
+            arbol.Listar(ref lbPacientes);
+
+            // Actualizar combo de pacientes en panel de citas
+            ActualizarComboPacientes();
+
+            txtDNI.Clear();
+            txtNombre.Clear();
+            txtTelefono.Clear();
         }
 
-        private void BtnLogin_Click(object sender, EventArgs e)
+        private void ActualizarComboPacientes()
         {
-            int dni;
-            if (!int.TryParse(txtDNI.Text, out dni))
+            string seleccionado = cmbPaciente.SelectedItem != null ? cmbPaciente.SelectedItem.ToString() : "";
+            cmbPaciente.Items.Clear();
+            foreach (object item in lbPacientes.Items)
             {
-                MessageBox.Show("Ingrese DNI");
+                cmbPaciente.Items.Add(item);
+            }
+            if (seleccionado != "" && cmbPaciente.Items.Contains(seleccionado))
+            {
+                cmbPaciente.SelectedItem = seleccionado;
+            }
+        }
+
+        // ── PANEL TERAPEUTAS (Lista Simple) ─────────────────────────────────
+        private void BtnAgregarTer_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNombreTer.Text) ||
+                string.IsNullOrWhiteSpace(txtEspecialidad.Text))
+            {
+                MessageBox.Show("Ingrese nombre y especialidad de la terapeuta.");
+                return;
+            }
+            if (listaTerapeutas.Existe(txtNombreTer.Text))
+            {
+                MessageBox.Show("Ya existe una terapeuta con ese nombre.");
                 return;
             }
 
-            Persona p = arbol.Buscar(dni);
-            if (p == null) return;
+            listaTerapeutas.Agregar(txtNombreTer.Text, txtEspecialidad.Text);
+            listaTerapeutas.LlenarListBox(lbTerapeutas);
+            listaTerapeutas.LlenarComboBox(cmbTerapeuta);
 
-            if (p.password != txtPassword.Text)
+            MessageBox.Show("Terapeuta agregada con exito!");
+            txtNombreTer.Clear();
+            txtEspecialidad.Clear();
+        }
+
+        private void BtnEliminarTer_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNombreTer.Text))
             {
-                MessageBox.Show("Clave incorrecta");
+                MessageBox.Show("Ingrese el nombre de la terapeuta a eliminar.");
                 return;
             }
 
-            usuarioActual = p;
-            MessageBox.Show("Bienvenido " + p.nombre);
+            bool eliminado = listaTerapeutas.Eliminar(txtNombreTer.Text);
+
+            if (eliminado)
+            {
+                listaTerapeutas.LlenarListBox(lbTerapeutas);
+                listaTerapeutas.LlenarComboBox(cmbTerapeuta);
+                MessageBox.Show("Terapeuta eliminada.");
+            }
+            else
+            {
+                MessageBox.Show("Terapeuta no encontrada.");
+            }
+
+            txtNombreTer.Clear();
+            txtEspecialidad.Clear();
+        }
+
+        // ── PANEL CITAS ──────────────────────────────────────────────────────
+        private Persona ObtenerPacienteSeleccionado()
+        {
+            if (cmbPaciente.SelectedItem == null)
+            {
+                MessageBox.Show("Seleccione un paciente.");
+                return null;
+            }
+
+            // El item del combo es un objeto Persona (de lbPacientes)
+            Persona p = cmbPaciente.SelectedItem as Persona;
+            if (p == null)
+            {
+                MessageBox.Show("Seleccione un paciente valido.");
+                return null;
+            }
+            return p;
         }
 
         private DateTime ObtenerFechaHora()
@@ -105,29 +161,23 @@ namespace GUI
             TimeSpan h;
             if (!TimeSpan.TryParse(txtHora.Text, out h))
             {
-                throw new Exception("Hora inválida");
+                throw new Exception("Hora invalida. Use formato HH:mm (ejemplo: 09:30)");
             }
             return fecha.Add(h);
         }
 
-        private void RbDuracion_CheckedChanged(object sender, EventArgs e)
-        {
-            ActualizarPrecio();
-        }
-
-        private void BtnVer_Click(object sender, EventArgs e)
+        private void BtnVerDisp_Click(object sender, EventArgs e)
         {
             try
             {
-                if (cmbAnfitriona.SelectedIndex < 0)
+                if (cmbTerapeuta.SelectedIndex < 0)
                 {
-                    MessageBox.Show("Seleccione anfitriona");
+                    MessageBox.Show("Seleccione una terapeuta.");
                     return;
                 }
-
                 DateTime fh = ObtenerFechaHora();
-                bool ocupado = lista.ExisteConflicto(cmbAnfitriona.Text, fh);
-                MessageBox.Show(ocupado ? "Ocupado" : "Libre");
+                bool ocupado = listaCitas.ExisteConflicto(cmbTerapeuta.Text, fh);
+                MessageBox.Show(ocupado ? "Horario OCUPADO" : "Horario LIBRE");
             }
             catch (Exception ex)
             {
@@ -135,16 +185,14 @@ namespace GUI
             }
         }
 
-        private void BtnRes_Click(object sender, EventArgs e)
+        private void BtnReservar_Click(object sender, EventArgs e)
         {
-            if (usuarioActual == null)
+            Persona paciente = ObtenerPacienteSeleccionado();
+            if (paciente == null) return;
+
+            if (cmbTerapeuta.SelectedIndex < 0)
             {
-                MessageBox.Show("Inicie sesión");
-                return;
-            }
-            if (cmbAnfitriona.SelectedIndex < 0)
-            {
-                MessageBox.Show("Seleccione anfitriona");
+                MessageBox.Show("Seleccione una terapeuta.");
                 return;
             }
 
@@ -152,35 +200,35 @@ namespace GUI
             {
                 DateTime fh = ObtenerFechaHora();
                 int dur = rb30.Checked ? 30 : 60;
-                decimal precio = rb30.Checked ? 30 : 60;
+                decimal precio = rb30.Checked ? 35 : 60;
 
-                if (lista.ExisteConflicto(cmbAnfitriona.Text, fh))
+                if (listaCitas.ExisteConflicto(cmbTerapeuta.Text, fh))
                 {
                     Cita ccola = new Cita();
-                    ccola.dniCliente = usuarioActual.dni;
-                    ccola.nombreCliente = usuarioActual.nombre;
-                    ccola.anfitriona = cmbAnfitriona.Text;
+                    ccola.dniPaciente = paciente.dni;
+                    ccola.nombrePaciente = paciente.nombre;
+                    ccola.terapeuta = cmbTerapeuta.Text;
                     ccola.fechaHoraInicio = fh;
                     ccola.duracionMin = dur;
                     ccola.precio = precio;
 
                     cola.Encolar(ccola);
-                    MessageBox.Show("Horario en cola de espera");
+                    MessageBox.Show("Horario ocupado. Cita agregada a la cola de espera.");
                     return;
                 }
 
                 Cita c = new Cita();
-                c.dniCliente = usuarioActual.dni;
-                c.nombreCliente = usuarioActual.nombre;
-                c.anfitriona = cmbAnfitriona.Text;
+                c.dniPaciente = paciente.dni;
+                c.nombrePaciente = paciente.nombre;
+                c.terapeuta = cmbTerapeuta.Text;
                 c.fechaHoraInicio = fh;
                 c.duracionMin = dur;
                 c.precio = precio;
 
-                lista.InsertarOrdenado(c);
-                lista.LlenarListBox(lbCitas);
+                listaCitas.InsertarOrdenado(c);
+                listaCitas.LlenarListBox(lbCitas);
                 pila.Push("RESERVA", c);
-                MessageBox.Show("Cita reservada");
+                MessageBox.Show("Cita reservada con exito!");
             }
             catch (Exception ex)
             {
@@ -188,11 +236,11 @@ namespace GUI
             }
         }
 
-        private void BtnUndo_Click(object sender, EventArgs e)
+        private void BtnDeshacer_Click(object sender, EventArgs e)
         {
             if (pila.EstaVacia())
             {
-                MessageBox.Show("Nada para deshacer");
+                MessageBox.Show("No hay acciones para deshacer.");
                 return;
             }
 
@@ -200,17 +248,13 @@ namespace GUI
             Cita c;
             if (pila.Pop(out acc, out c) && acc == "RESERVA")
             {
-                lista.Eliminar(c);
-                lista.LlenarListBox(lbCitas);
+                listaCitas.Eliminar(c);
+                listaCitas.LlenarListBox(lbCitas);
+                MessageBox.Show("Ultima reserva deshecha.");
             }
         }
 
-        private void lbCitas_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
+        private void txtEspecialidad_TextChanged(object sender, EventArgs e)
         {
 
         }
