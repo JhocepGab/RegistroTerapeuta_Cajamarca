@@ -87,7 +87,6 @@ namespace GUI
             this.btnReservar = new System.Windows.Forms.Button();
             this.btnDeshacer = new System.Windows.Forms.Button();
             this.lbCitas = new System.Windows.Forms.ListBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.gPacientes.SuspendLayout();
             this.gTerapeutas.SuspendLayout();
@@ -161,6 +160,7 @@ namespace GUI
             // 
             this.txtTelefono.Location = new System.Drawing.Point(107, 101);
             this.txtTelefono.Margin = new System.Windows.Forms.Padding(4);
+            this.txtTelefono.MaxLength = 9;
             this.txtTelefono.Name = "txtTelefono";
             this.txtTelefono.Size = new System.Drawing.Size(265, 22);
             this.txtTelefono.TabIndex = 5;
@@ -269,7 +269,6 @@ namespace GUI
             // gCitas
             // 
             this.gCitas.Controls.Add(this.label2);
-            this.gCitas.Controls.Add(this.label1);
             this.gCitas.Controls.Add(this.lblSelPaciente);
             this.gCitas.Controls.Add(this.cmbPaciente);
             this.gCitas.Controls.Add(this.lblSelTerapeuta);
@@ -366,7 +365,7 @@ namespace GUI
             this.txtHora.Name = "txtHora";
             this.txtHora.Size = new System.Drawing.Size(79, 22);
             this.txtHora.TabIndex = 7;
-            this.txtHora.Text = "09:00";
+            this.txtHora.Text = "00:00";
             // 
             // rb30
             // 
@@ -436,15 +435,6 @@ namespace GUI
             this.lbCitas.Size = new System.Drawing.Size(785, 132);
             this.lbCitas.TabIndex = 14;
             // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(363, 162);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(87, 20);
-            this.label1.TabIndex = 15;
-            this.label1.Text = "Nombre:";
-            // 
             // label2
             // 
             this.label2.Location = new System.Drawing.Point(567, 70);
@@ -477,6 +467,5 @@ namespace GUI
         }
 
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
     }
 }
